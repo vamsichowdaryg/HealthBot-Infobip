@@ -17,8 +17,9 @@ INFOBIP_WHATSAPP_SENDER_NUMBER = os.getenv("INFOBIP_WHATSAPP_SENDER_NUMBER")
 DIRECT_LINE_BASE_URL = os.getenv("DIRECT_LINE_BASE_URL")
 DIRECT_LINE_SECRET = os.getenv("DIRECT_LINE_SECRET")
 
-AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
-AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION", "eastus")
+# Removed these lines as per your request to hardcode them
+# AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
+# AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION", "eastus")
 
 conversations = {}
 
@@ -58,10 +59,14 @@ async def handle_voice_message(media_url):
         )
         audio_res.raise_for_status()
 
+        # Hardcoded Azure Speech Key and Region as requested
+        AZURE_SPEECH_REGION_HARDCODED = "eastus"
+        AZURE_SPEECH_KEY_HARDCODED = "40K84vS2b0E637v9J0qtz4MEpA7bsjaoRBg9DjQY9A3wjcptJ9o1JQQJ99BCACYeBjFXJ3w3AAAYACOG2sOr"
+
         # Step 2: Send audio to Azure Speech-to-Text
-        azure_stt_url = f"https://{AZURE_SPEECH_REGION}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US"
+        azure_stt_url = f"https://{AZURE_SPEECH_REGION_HARDCODED}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US"
         azure_headers = {
-            'Ocp-Apim-Subscription-Key': AZURE_SPEECH_KEY,
+            'Ocp-Apim-Subscription-Key': AZURE_SPEECH_KEY_HARDCODED,
             'Content-Type': 'audio/ogg; codecs=opus', # Assuming OGG Opus from WhatsApp/Infobip
             'Transfer-Encoding': 'chunked',
         }
@@ -84,11 +89,6 @@ async def handle_voice_message(media_url):
         return "Sorry, I had trouble processing your voice message."
 
 
-## Infobip Webhook Endpoint
-
-# This is the core of your integration, handling incoming WhatsApp messages from Infobip, sending them to your Direct Line bot, and returning the bot's response.
-
-# ```python
 @app.route('/infobip-whatsapp-webhook', methods=['POST'])
 async def handle_infobip_webhook():
     try:
@@ -198,9 +198,3 @@ async def handle_infobip_webhook():
     except Exception as e:
         print(f"An unexpected error occurred in webhook: {e}")
         return jsonify({"status": "error", "message": f"Internal server error: {str(e)}"}), 500
-
-if __name__ == '__main__':
-    # This block is for local development only.
-    # In production, Gunicorn will handle starting the app.
-    print("Starting Flask app for local development...")
-    app.run(host='0.0.0.0', port=os.getenv('PORT', 5000), debug=True)
