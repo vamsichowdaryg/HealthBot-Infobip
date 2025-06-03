@@ -1,28 +1,31 @@
 import os
 from flask import Flask, request, jsonify
 import requests
-from dotenv import load_dotenv
 import asyncio # For asynchronous operations like sleep
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
-# Load environment variables from .env file
-load_dotenv()
-
+# --- Flask Application Initialization ---
 app = Flask(__name__)
 
-# --- Configuration (loaded from .env) ---
-INFOBIP_API_BASE_URL = os.getenv("INFOBIP_API_BASE_URL")
-INFOBIP_API_KEY = os.getenv("INFOBIP_API_KEY")
-INFOBIP_WHATSAPP_SENDER_NUMBER = os.getenv("INFOBIP_WHATSAPP_SENDER_NUMBER")
+# --- Configuration (HARDCODED as per request) ---
+# WARNING: Hardcoding sensitive information like API keys and secrets directly
+# into your source code is a significant security risk and is NOT recommended
+# for production environments. Use environment variables or a secrets management
+# service for better security practices.
 
-DIRECT_LINE_BASE_URL = os.getenv("DIRECT_LINE_BASE_URL")
-DIRECT_LINE_SECRET = os.getenv("DIRECT_LINE_SECRET")
+INFOBIP_API_BASE_URL = "https://g9ln56.api.infobip.com"
+INFOBIP_API_KEY = "c82c0a67289498dd25b2395b4fab7a65-13749d80-dbfa-4899-bb11-0229ce8ca0a6"
+INFOBIP_WHATSAPP_SENDER_NUMBER = "447860099299"
 
-AZURE_SPEECH_KEY = os.getenv("AZURE_SPEECH_KEY")
-AZURE_SPEECH_REGION = os.getenv("AZURE_SPEECH_REGION", "eastus") # Default to eastus if not set
+DIRECT_LINE_BASE_URL = "https://directline.botframework.com/v3/directline"
+DIRECT_LINE_SECRET = "4bEHl4WbbsPZnu4Tq3APzAfGbKMVBM2uUEDw2dXyzZ4MDTZSPc03JQQJ99BEAC77bzfAArohAAABAZBS0118.CebHBnxyeBs63IDEs2dowO7Acu8IALe5lc19M3zLy8s26aLWNuhpJQQJ99BEAC77bzfAArohAAABAZBS3Qhc"
 
-MONGO_DB_URI = os.getenv("MONGO_DB_URI")
+AZURE_SPEECH_KEY = "40K84vS2b0E637v9J0qtz4MEpA7bsjaoRBg9DjQY9A3wjcptJ9o1JQQJ99BCACYeBjFXJ3w3AAAYACOG2sOr"
+AZURE_SPEECH_REGION = "eastus"
+
+DB_NAME = "SmartcardApp"
+MONGO_DB_URI = "mongodb+srv://darshanmagdum:tzj7SxsKHeZoqc14@whatsappbot-cluster.2wgzguz.mongodb.net/SmartcardApp?retryWrites=true&w=majority&appName=WhatsappBOT-CLUSTER"
 
 # Store conversations (in-memory, consider persistent storage like Redis for production)
 conversations = {}
@@ -33,7 +36,7 @@ try:
     mongo_client = MongoClient(MONGO_DB_URI)
     mongo_client.admin.command('ping') # The ping command is cheap and does not require auth.
     print("✅ MongoDB connected successfully!")
-    db = mongo_client.get_database("SmartcardApp") # Get the database
+    db = mongo_client.get_database(DB_NAME) # Get the specified database
     users_collection = db.users # Get the 'users' collection
 
     # Ensure unique index on smartcardNumber (similar to mongoose unique: true)
@@ -396,7 +399,7 @@ async def get_balance():
 
 # --- Start Server ---
 if __name__ == '__main__':
-    PORT = int(os.getenv('PORT', 3000))
+    PORT = int(os.getenv('PORT', 3000)) # Use PORT from environment if available, else 3000
     # In production, use a WSGI server like Gunicorn
     print(f"Server running on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=True) # debug=True for development only
