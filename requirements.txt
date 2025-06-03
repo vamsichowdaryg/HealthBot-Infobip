@@ -1,6 +1,3 @@
-Flask
-requests
-python-dotenv
-pymongo
-dnspython
-gunicorn
+fastapi
+uvicorn
+pydantic
